@@ -109,14 +109,15 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
 
           BottomNavigationBarItem(
+            icon: Icon(Icons.quiz),
+            label: '知恵袋',
+          ),
+
+          BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: '検索',
           ),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.article),
-            label: '記事',
-          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: '設定',
@@ -133,9 +134,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         return ChatTab();
       case 1:
-        return SearchTab();
+        return ChieTab();
       case 2:
-        return PostsTab();
+        return SearchTab();
       case 3:
         return SettingsTab();
       default:
@@ -150,9 +151,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         return 'ちゃっと';
       case 1:
-        return '検索';
+        return '知恵袋';
       case 2:
-        return '記事';
+        return '検索';
       case 3:
         return '設定';
       default:
@@ -167,6 +168,16 @@ class ChatTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return WebView(
       initialUrl: 'https://ensenchat.com/bbs/',
+      javascriptMode: JavascriptMode.unrestricted,
+    );
+  }
+}
+
+class ChieTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WebView(
+      initialUrl: 'https://ensenchat.com/forum/%e7%9f%a5%e6%81%b5%e8%a2%8b/',
       javascriptMode: JavascriptMode.unrestricted,
     );
   }
@@ -292,12 +303,6 @@ class _SearchTabState extends State<SearchTab> {
                   ),
       ],
     );
-  }
-}
-class PostsTab extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ArticleList();
   }
 }
 
