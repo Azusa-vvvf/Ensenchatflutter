@@ -6,6 +6,7 @@ import 'package:settings_ui/settings_ui.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'dart:async';
 
 const locale = Locale("ja", "JP");
 
@@ -318,6 +319,26 @@ class SettingsTab extends StatelessWidget {
           return SettingsList(
             sections: [
               SettingsSection(
+                title: Text('アカウント'),
+                tiles: [
+                  SettingsTile(
+                    leading: Icon(Icons.login),
+                    title: Text('ログイン・アカウント'),
+                    onPressed: (BuildContext context) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WebViewPageCustom(
+                            customUrl: 'https://ensenchat.com/#/',
+                            customTitle: '沿線ちゃっとにログイン',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+               SettingsSection(
                 title: Text('アプリ情報'),
                 tiles: [
                   SettingsTile(
@@ -426,13 +447,93 @@ class SettingsTab extends StatelessWidget {
 
                 ],
               ),
+
+              SettingsSection(
+                title: Text('編集者向け'),
+                tiles: [
+                  SettingsTile(
+                    leading: Icon(Icons.edit),
+                    title: Text('ログイン'),
+                    onPressed: (BuildContext context) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WebViewPageWithBack(
+                            backUrl: 'https://ensenchat.com/wp-admin/',
+                            backTitle: '管理画面',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ],
           );
         } else {
-          // データがまだ取得されていない場合の表示
           return Center(child: CircularProgressIndicator());
         }
       },
+    );
+  }
+}
+
+class WebViewPageCustom extends StatelessWidget {
+  final String customUrl;
+  final String customTitle;
+
+  WebViewPageCustom({required this.customUrl, required this.customTitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(customTitle),
+      ),
+      body: WebView(
+        initialUrl: customUrl,
+        javascriptMode: JavascriptMode.unrestricted, // JavaScriptを有効にする
+      ),
+    );
+  }
+}
+
+class WebViewPageWithBack extends StatefulWidget {
+  final String backUrl;
+  final String backTitle;
+
+  WebViewPageWithBack({required this.backUrl, required this.backTitle});
+
+  @override
+  _WebViewPageWithBackState createState() => _WebViewPageWithBackState();
+}
+
+class _WebViewPageWithBackState extends State<WebViewPageWithBack> {
+  late WebViewController _webViewController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.backTitle),
+      ),
+      body: WillPopScope(
+        onWillPop: () async {
+          if (await _webViewController.canGoBack()) {
+            _webViewController.goBack();
+            return false;
+          } else {
+            return true;
+          }
+        },
+        child: WebView(
+          initialUrl: widget.backUrl,
+          javascriptMode: JavascriptMode.unrestricted, // JavaScriptを有効にする
+          onWebViewCreated: (WebViewController webViewController) {
+            _webViewController = webViewController;
+          },
+        ),
+      ),
     );
   }
 }
@@ -519,22 +620,49 @@ class ArticleDetail extends StatelessWidget {
     );
   }
 }
-class WebViewPage extends StatelessWidget {
+class WebViewPage extends StatefulWidget {
   final String url;
   final String title;
 
   WebViewPage({required this.url, required this.title});
 
   @override
+  _WebViewPageState createState() => _WebViewPageState();
+}
+
+class _WebViewPageState extends State<WebViewPage> {
+  late WebViewController _webViewController;
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: WebView(
-        initialUrl: url,
-        javascriptMode: JavascriptMode.unrestricted,
+    return WillPopScope(
+      onWillPop: () async {
+        if (await _canGoBack()) {
+          _goBack();
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: WebView(
+          initialUrl: widget.url,
+          javascriptMode: JavascriptMode.unrestricted,
+          onWebViewCreated: (controller) {
+            _webViewController = controller;
+          },
+        ),
       ),
     );
+  }
+
+  Future<bool> _canGoBack() async {
+    return await _webViewController.canGoBack();
+  }
+
+  void _goBack() {
+    _webViewController.goBack();
   }
 }
