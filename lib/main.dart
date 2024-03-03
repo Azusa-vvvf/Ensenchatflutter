@@ -255,7 +255,7 @@ class _SearchTabState extends State<SearchTab> {
               TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search',
+                  hintText: 'ここに入力して検索',
                   suffixIcon: IconButton(
                     icon: Icon(Icons.search),
                     onPressed: () {
@@ -298,7 +298,7 @@ class _SearchTabState extends State<SearchTab> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 AspectRatio(
-                                  aspectRatio: 16 / 9,
+                                  aspectRatio: 191 / 100,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.only(
                                       topLeft: Radius.circular(8.0),
