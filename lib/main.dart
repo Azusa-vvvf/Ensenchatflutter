@@ -251,11 +251,11 @@ class _SearchTabState extends State<SearchTab> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              Text('最新記事100件から検索できます'),
+              //Text('最新記事100件から検索できます'),
               TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'ここに入力して検索',
+                  hintText: '最新記事100件から検索',
                   suffixIcon: IconButton(
                     icon: Icon(Icons.search),
                     onPressed: () {
