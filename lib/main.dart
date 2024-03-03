@@ -436,7 +436,7 @@ class SettingsTab extends StatelessWidget {
                   ),
                   SettingsTile(
                     leading: Icon(Icons.account_circle),
-                    title: Text('開発 ：摩耗型フリーナ'),
+                    title: Text('開発 ：沿線ちゃっと編集部'),
                     // onPressed: (BuildContext context) {},
                   ),
                 ],
@@ -446,10 +446,10 @@ class SettingsTab extends StatelessWidget {
                 tiles: [
                   SettingsTile(
                     leading: Icon(Icons.verified),
-                    title: Text('開発者のTwitter'),
+                    title: Text('沿線ちゃっとのTwitterへ'),
                     onPressed: (BuildContext context) {
                       // 開発者のTwitterページにジャンプする
-                      launch('https://twitter.com/Focalors_LED');
+                      launch('https://twitter.com/ensenchat');
                     },
                   ),
                   SettingsTile(
