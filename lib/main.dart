@@ -287,7 +287,7 @@ class _SearchTabState extends State<SearchTab> {
                               MaterialPageRoute(
                                 builder: (context) => ArticleDetail(
                                   articleUrl: _searchResults[index]['link'],
-                                //  articleTitle: title,
+                                  //articleTitle: title,
                                 ),
                               ),
                             );
@@ -297,19 +297,20 @@ class _SearchTabState extends State<SearchTab> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(8.0),
-                                    topRight: Radius.circular(8.0),
+                                AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(8.0),
+                                      topRight: Radius.circular(8.0),
+                                    ),
+                                    child: imageUrl != null
+                                        ? Image.network(
+                                            imageUrl,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Container(),
                                   ),
-                                  child: imageUrl != null
-                                      ? Image.network(
-                                          imageUrl,
-                                          height: 150.0,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : Container(),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.all(8.0),
