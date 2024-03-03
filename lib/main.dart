@@ -206,12 +206,10 @@ class _SearchTabState extends State<SearchTab> {
     });
 
     if (query.isEmpty) {
-      // 検索窓が空の場合は最新の記事一覧を表示
       await _fetchLatestArticles();
     } else {
-      // 検索クエリがある場合は検索結果を取得
       final response = await http.get(
-        Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=1&search=$query'),
+        Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=1&_embed&search=$query'),
       );
 
       if (response.statusCode == 200) {
@@ -230,7 +228,7 @@ class _SearchTabState extends State<SearchTab> {
 
   Future<void> _fetchLatestArticles() async {
     final response = await http.get(
-        Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=1'));
+        Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=1&_embed'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -257,7 +255,7 @@ class _SearchTabState extends State<SearchTab> {
               TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'ここに入力して検索',
+                  hintText: 'Search',
                   suffixIcon: IconButton(
                     icon: Icon(Icons.search),
                     onPressed: () {
@@ -279,6 +277,9 @@ class _SearchTabState extends State<SearchTab> {
                     child: ListView.builder(
                       itemCount: _searchResults.length,
                       itemBuilder: (context, index) {
+                        var title = _searchResults[index]['title']['rendered'];
+                        var imageUrl = _searchResults[index]['_embedded']['wp:featuredmedia'][0]['source_url'];
+
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -286,16 +287,41 @@ class _SearchTabState extends State<SearchTab> {
                               MaterialPageRoute(
                                 builder: (context) => ArticleDetail(
                                   articleUrl: _searchResults[index]['link'],
-//                                  articleTitle: _searchResults[index]['title']['rendered'],
+                                //  articleTitle: title,
                                 ),
                               ),
                             );
                           },
                           child: Card(
                             margin: EdgeInsets.all(8.0),
-                            child: ListTile(
-                              title: Text(_searchResults[index]['title']['rendered']),
-                              // Add more details or customize the display as needed
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(8.0),
+                                    topRight: Radius.circular(8.0),
+                                  ),
+                                  child: imageUrl != null
+                                      ? Image.network(
+                                          imageUrl,
+                                          height: 150.0,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Container(),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    title,
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -306,6 +332,7 @@ class _SearchTabState extends State<SearchTab> {
     );
   }
 }
+
 
 class SettingsTab extends StatelessWidget {
   @override
