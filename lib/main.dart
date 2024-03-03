@@ -115,8 +115,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
 
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: '検索',
+            icon: Icon(Icons.article),
+            label: '記事',
           ),
 
           BottomNavigationBarItem(
@@ -154,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case 1:
         return '知恵袋';
       case 2:
-        return '検索';
+        return '記事';
       case 3:
         return '設定';
       default:
@@ -257,7 +257,7 @@ class _SearchTabState extends State<SearchTab> {
               TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search',
+                  hintText: 'ここに入力して検索',
                   suffixIcon: IconButton(
                     icon: Icon(Icons.search),
                     onPressed: () {
