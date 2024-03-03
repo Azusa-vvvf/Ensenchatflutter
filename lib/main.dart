@@ -162,92 +162,6 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 
-/**class EnsenTab extends StatefulWidget {
-  @override
-  _EnsenTabState createState() => _EnsenTabState();
-}
-
-class _EnsenTabState extends State<EnsenTab> {
-  late Future<List<Map<String, String>>> latestArticles;
-
-  @override
-  void initState() {
-    super.initState();
-    latestArticles = fetchLatestArticles();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              '新着記事5件',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          FutureBuilder<List<Map<String, String>>>(
-            future: latestArticles,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('エラーが発生しました');
-              } else {
-                return Expanded(
-                  child: ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(snapshot.data![index]['title']!),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ArticleDetail(
-                                articleUrl: snapshot.data![index]['url']!,
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                );
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<List<Map<String, String>>> fetchLatestArticles() async {
-    final response = await http.get(
-        Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=5&page=1'));
-
-    if (response.statusCode == 200) {
-      List<Map<String, String>> articles = [];
-
-      final List<dynamic> data = json.decode(response.body);
-
-      for (int i = 0; i < data.length; i++) {
-        articles.add({
-          'title': data[i]['title']['rendered'],
-          'url': data[i]['link'],
-        });
-      }
-
-      return articles;
-    } else {
-      throw Exception('Failed to load latest articles');
-    }
-  }
-}*/
-
 class ChatTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -257,15 +171,6 @@ class ChatTab extends StatelessWidget {
     );
   }
 }
-/**class GeneralChatTab extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return WebView(
-      initialUrl: 'https://ensenchat.com/%e7%b7%8f%e5%90%88%e3%81%a1%e3%82%83%e3%81%a3%e3%81%a8/',
-      javascriptMode: JavascriptMode.unrestricted,
-    );
-  }
-}*/
 
 class SearchTab extends StatefulWidget {
   @override
