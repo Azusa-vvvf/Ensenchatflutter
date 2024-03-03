@@ -1,16 +1,59 @@
-# ensenchatflutter
+# 沿線ちゃっと
 
-A new Flutter project.
+[沿線ちゃっと](ensenchat.com)のアプリを製作するプロジェクトです。
+Flutterを用いて開発を行います。
 
-## Getting Started
+# 開発について
+## 管轄
+運営、摩耗型フリーナ
+## 開発言語・フレームワーク
+Dart／Flutter
+## 時期
+夏頃まで分担し開発、7月〜9月目指してv1.0公開
+開発後バグや追加機能等あれば定期的に更新
+## IDE(統合開発環境)
+Visual Studio Code、もしくはAndroid Studioをお薦めしますが、
+**必ずWindows勢はAndroid Studio、Mac勢はAndroid StudioとXcodeの両方の環境構築**をお願いします。
+## 環境について
+Flutter SDKの導入等必要です。ggrks。
+必ずflutter doctorしてすべて✅がつく状態にしてください。
+## 開発の進め方
+ソースコードをGitHub上にて公開するので、それを基に進めます。
+実装する機能については、分担を行う予定です。
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# 実装機能
+## 全体
+記事検索とか一覧の読み込み時にローディングアニメーションを入れる
+スレの取得方法は依然として不明→APIじゃ無理？(なら新着スレの表示も無理)
+WebViewで表示しているところが重すぎる(いちいちサイトに取得しに行ってるせい説が濃厚)
+## 「ホーム」タブ
+まあ新規実装になるやつですね
+今のサイトのトップページを軸に「新着記事」「トップ記事」「新着スレ」をいい感じに配置
+## 記事関連
+### 一覧系
+~~現状の「記事一覧」と「記事検索」の統合(無駄な画面移動を減らす)~~**実装完了機能**、サムネの表示(APIから取得できてなさそう)
+最初にも言ったがローディングアニメーション
+現行の記事検索と記事一覧のUI差やめる(検索のほうのUIに合わせる)
+背景色が灰色なのが若干気持ち悪いから白にする
+### 記事詳細
+タイトルだけはネイティブ表示、<main>タグ内を取得できればそれでいいが結局重いのは変わらない
+API取得で表示すると記事の体裁が崩れる・PVカウントされない
+## ちゃっと画面
+API取得したい(3回目)　疎すぎて実装方法が謎。
+できれば内部で表示したい　<main>タグ内さえ取得できれば(2回目)
+## コメント・レス関係
+設定画面などにログイン画面設置。　沿線ちゃっと側でログイン機能実装予定。
+## 「編集者も使いやすい」アプリへ
+どっかに投稿者メニュー(wp_admin)のボタンを配置→一般の目に触れる位置でもIDとPWがないと入れないから別にいいんじゃ
+## メニュー
+ボトムメニューはあまり煩雑にしたくない　最高5個ボタンを置く主義
+サイドメニューにブクマ、設定を置く　Twitterアプリ的なのを目指してるけどスカスカすぎるから何入れようか。ここにwp_adminへのリンクを入れてもいいかもしれない
+## 設定画面
+基本現行通り
+iOSでもバージョン番号のところにドロイド君が表示されるのは別のいい感じなアイコン探してきます。
+## ブックマーク
+**サイトとアプリの差別化**を考えたときに真っ先に思い浮かんだのがこれ。
+さっきも言ったようにTwitter的なメニューを個人的に実装したいからサイドメニューに突っ込むことを検討。
+「あとで読む」的なの。記事一覧とかから突っ込めるようにしようかな
+## 基本UI・アプリアイコン
+現行通り　独自のスプラッシュスクリーンは実装済。
