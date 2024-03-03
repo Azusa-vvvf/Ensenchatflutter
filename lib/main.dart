@@ -275,7 +275,13 @@ class SearchTab extends StatefulWidget {
 class _SearchTabState extends State<SearchTab> {
   TextEditingController _searchController = TextEditingController();
   List<dynamic> _searchResults = [];
-  bool _isLoading = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLatestArticles();
+  }
 
   Future<void> _searchWordPress(String query) async {
     setState(() {
@@ -316,6 +322,10 @@ class _SearchTabState extends State<SearchTab> {
     } else {
       print('Failed to load latest articles');
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -343,40 +353,42 @@ class _SearchTabState extends State<SearchTab> {
           ),
         ),
         _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
             : _searchResults.isEmpty
-            ? Center(child: Text('結果がありません'))
-            : Expanded(
-          child: ListView.builder(
-            itemCount: _searchResults.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ArticleDetail(
-                        articleUrl: _searchResults[index]['link'],
-                      ),
+                ? Center(child: Text('結果がありません'))
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: _searchResults.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ArticleDetail(
+                                  articleUrl: _searchResults[index]['link'],
+//                                  articleTitle: _searchResults[index]['title']['rendered'],
+                                ),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            margin: EdgeInsets.all(8.0),
+                            child: ListTile(
+                              title: Text(_searchResults[index]['title']['rendered']),
+                              // Add more details or customize the display as needed
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-                child: Card(
-                  margin: EdgeInsets.all(8.0),
-                  child: ListTile(
-                    title: Text(_searchResults[index]['title']['rendered']),
-                    // Add more details or customize the display as needed
                   ),
-                ),
-              );
-            },
-          ),
-        ),
       ],
     );
   }
 }
-
 class PostsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
