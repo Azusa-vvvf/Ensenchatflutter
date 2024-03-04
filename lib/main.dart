@@ -639,7 +639,7 @@ class ArticleDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('記事詳細'),
+        title: Text('記事'),
       ),
       body: WebView(
         initialUrl: articleUrl,
