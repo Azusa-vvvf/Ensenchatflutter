@@ -168,7 +168,7 @@ class ChatTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WebView(
-      initialUrl: 'https://ensenchat.com/bbs/',
+      initialUrl: 'https://ensenchat.com/chat/',
       javascriptMode: JavascriptMode.unrestricted,
     );
   }
