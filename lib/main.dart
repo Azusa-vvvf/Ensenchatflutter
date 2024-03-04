@@ -105,15 +105,17 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble),
-            label: 'ちゃっと',
+            icon: Icon(Icons.home),
+            label: 'ホーム',
           ),
-
           BottomNavigationBarItem(
             icon: Icon(Icons.quiz),
             label: '知恵袋',
           ),
-
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble),
+            label: 'ちゃっと',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.article),
             label: '記事',
@@ -130,15 +132,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildTabContent(int index) {
     switch (index) {
-      /**case 0:
-        return EnsenTab();*/
       case 0:
-        return ChatTab();
+        return HomeTab();
       case 1:
         return ChieTab();
       case 2:
-        return SearchTab();
+        return ChatTab();
       case 3:
+        return SearchTab();
+      case 4:
         return SettingsTab();
       default:
         return Container();
@@ -147,15 +149,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String _getAppBarTitle(int index) {
     switch (index) {
-      /**case 0:
-        return "Image:Image.asset(ensenchatlogo.jpg)";*/
       case 0:
-        return 'ちゃっと';
+        return 'ホーム';
       case 1:
         return '知恵袋';
       case 2:
-        return '記事';
+        return 'ちゃっと';
       case 3:
+        return '記事';
+      case 4:
         return '設定';
       default:
         return '';
@@ -163,6 +165,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+class HomeTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return WebView(
+      initialUrl: 'https://ensenchat.com/',
+      javascriptMode: JavascriptMode.unrestricted,
+    );
+  }
+}
 
 class ChatTab extends StatelessWidget {
   @override
