@@ -34,8 +34,8 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.ensenchat.ensenchatflutter"
-    compileSdkVersion flutter.compileSdkVersion
+    namespace "com.traindata.ensenchat"
+    compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {
