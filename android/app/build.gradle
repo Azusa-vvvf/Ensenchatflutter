@@ -45,6 +45,9 @@ android {
     namespace "com.traindata.ensenchat"
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
+    aaptOptions {
+        cruncherEnabled = false
+    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
