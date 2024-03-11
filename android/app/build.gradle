@@ -74,16 +74,13 @@ android {
     }
     signingConfigs {
         release {
-            if (keystorePropertiesFile.exists()) {
-                def keystoreProperties = new Properties()
-                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-                storeFile file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
-            }
+            storeFile file('C://Users/Suijin_impact/StudioProjects/Ensenchatflutter/android/app/release.jks')
+            storePassword 'ensenchat'
+            keyAlias 'ensenchat'
+            keyPassword 'ensenchat'
         }
-    }
+        }
+    
 
     buildTypes {
         release {
@@ -94,7 +91,6 @@ android {
         }
     }
 }
-
 flutter {
     source '../..'
 }

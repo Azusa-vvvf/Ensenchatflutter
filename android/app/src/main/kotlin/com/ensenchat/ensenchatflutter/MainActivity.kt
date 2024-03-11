@@ -1,4 +1,4 @@
-package com.ensenchat.ensenchatflutter
+package com.traindata.ensenchat
 
 import io.flutter.embedding.android.FlutterActivity
 
