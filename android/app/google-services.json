@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "945271796769",
+    "project_id": "ensenchat-app",
+    "storage_bucket": "ensenchat-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:945271796769:android:50ae6a41be457b262c9f60",
+        "android_client_info": {
+          "package_name": "com.traindata.ensenchat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqQI_oTlG5awWEr89FYL8jRtzu7ECvyag"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

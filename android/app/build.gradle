@@ -6,6 +6,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.0' // 例: 使用しているAndroid Gradleプラグインのバージョンに合わせて変更
         // 他の依存関係があればここに追加
+        classpath 'com.google.gms:google-services:4.3.10'
     }
 }
 
