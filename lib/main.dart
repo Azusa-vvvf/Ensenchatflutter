@@ -12,6 +12,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 
 
 
@@ -273,32 +274,99 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class HomeTab extends StatelessWidget {
+
+class HomeTab extends StatefulWidget {
+  @override
+  _HomeTabState createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<HomeTab> {
+  late WebViewController _webViewController;
+
   @override
   Widget build(BuildContext context) {
-    return WebView(
-      initialUrl: 'https://ensenchat.com/',
-      javascriptMode: JavascriptMode.unrestricted,
+    return WillPopScope(
+      onWillPop: () async {
+        // WebView内でバックできる場合
+        if (await _webViewController.canGoBack()) {
+          _webViewController.goBack();
+          return false;
+        } else {
+          // WebView内でバックできない場合は通常の戻る操作を行う
+          return true;
+        }
+      },
+      child: WebView(
+        initialUrl: 'https://ensenchat.com/',
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (controller) {
+          _webViewController = controller;
+        },
+      ),
     );
   }
 }
 
-class ChatTab extends StatelessWidget {
+class ChatTab extends StatefulWidget {
+  @override
+  _ChatTabState createState() => _ChatTabState();
+}
+
+class _ChatTabState extends State<ChatTab> {
+  late WebViewController _webViewController;
+
   @override
   Widget build(BuildContext context) {
-    return WebView(
-      initialUrl: 'https://ensenchat.com/chat/',
-      javascriptMode: JavascriptMode.unrestricted,
+    return WillPopScope(
+      onWillPop: () async {
+        // WebView内でバックできる場合
+        if (await _webViewController.canGoBack()) {
+          _webViewController.goBack();
+          return false;
+        } else {
+          // WebView内でバックできない場合は通常の戻る操作を行う
+          return true;
+        }
+      },
+      child: WebView(
+        initialUrl: 'https://ensenchat.com/chat/',
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (controller) {
+          _webViewController = controller;
+        },
+      ),
     );
   }
 }
 
-class ChieTab extends StatelessWidget {
+class ChieTab extends StatefulWidget {
+  @override
+  _ChieTabState createState() => _ChieTabState();
+}
+
+class _ChieTabState extends State<ChieTab> {
+  late WebViewController _webViewController;
+
   @override
   Widget build(BuildContext context) {
-    return WebView(
-      initialUrl: 'https://ensenchat.com/forum/%e7%9f%a5%e6%81%b5%e8%a2%8b/',
-      javascriptMode: JavascriptMode.unrestricted,
+    return WillPopScope(
+      onWillPop: () async {
+        // WebView内でバックできる場合
+        if (await _webViewController.canGoBack()) {
+          _webViewController.goBack();
+          return false;
+        } else {
+          // WebView内でバックできない場合は通常の戻る操作を行う
+          return true;
+        }
+      },
+      child: WebView(
+        initialUrl: 'https://ensenchat.com/forum/%e7%9f%a5%e6%81%b5%e8%a2%8b/',
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (controller) {
+          _webViewController = controller;
+        },
+      ),
     );
   }
 }
@@ -312,6 +380,8 @@ class _SearchTabState extends State<SearchTab> {
   TextEditingController _searchController = TextEditingController();
   List<dynamic> _searchResults = [];
   bool _isLoading = true;
+  int _currentPage = 1;
+  int _totalPages = 1;
 
   @override
   void initState() {
@@ -319,21 +389,26 @@ class _SearchTabState extends State<SearchTab> {
     _fetchLatestArticles();
   }
 
-  Future<void> _searchWordPress(String query) async {
+  Future<void> _searchWordPress(String query, {int page = 1}) async {
     setState(() {
       _isLoading = true;
     });
 
     if (query.isEmpty) {
-      await _fetchLatestArticles();
+      await _fetchLatestArticles(page: page);
     } else {
       final response = await http.get(
-        Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=1&_embed&search=$query'),
+        Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=$page&_embed&search=$query'),
       );
 
       if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final totalPages = int.parse(response.headers['x-wp-totalpages'] ?? '1');
+
         setState(() {
-          _searchResults = json.decode(response.body);
+          _searchResults = data;
+          _totalPages = totalPages;
+          _currentPage = page;
         });
       } else {
         print('Failed to load search results');
@@ -345,13 +420,19 @@ class _SearchTabState extends State<SearchTab> {
     });
   }
 
-  Future<void> _fetchLatestArticles() async {
+  Future<void> _fetchLatestArticles({int page = 1}) async {
     final response = await http.get(
-        Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=1&_embed'));
+      Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=20&page=$page&_embed'),
+    );
 
     if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final totalPages = int.parse(response.headers['x-wp-totalpages'] ?? '1');
+
       setState(() {
-        _searchResults = json.decode(response.body);
+        _searchResults = data;
+        _totalPages = totalPages;
+        _currentPage = page;
       });
     } else {
       print('Failed to load latest articles');
@@ -370,11 +451,10 @@ class _SearchTabState extends State<SearchTab> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              //Text('最新記事100件から検索できます'),
               TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: '最新記事100件から検索',
+                  hintText: '検索',
                   suffixIcon: IconButton(
                     icon: Icon(Icons.search),
                     onPressed: () {
@@ -388,71 +468,99 @@ class _SearchTabState extends State<SearchTab> {
         ),
         _isLoading
             ? Center(
-                child: CircularProgressIndicator(),
-              )
+          child: CircularProgressIndicator(),
+        )
             : _searchResults.isEmpty
-                ? Center(child: Text('結果がありません'))
-                : Expanded(
-                    child: ListView.builder(
-                      itemCount: _searchResults.length,
-                      itemBuilder: (context, index) {
-                        var title = _searchResults[index]['title']['rendered'];
-                        var imageUrl = _searchResults[index]['_embedded']['wp:featuredmedia'][0]['source_url'];
+            ? Center(child: Text('結果がありません'))
+            : Expanded(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _searchResults.length,
+                  itemBuilder: (context, index) {
+                    var title = _searchResults[index]['title']['rendered'];
+                    var imageUrl = _searchResults[index]['_embedded']['wp:featuredmedia']?[0]['source_url'] ?? 'https://ensenchat.com/wp-content/uploads/2024/03/logomax6-scaled.jpg';
 
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ArticleDetail(
-                                  articleUrl: _searchResults[index]['link'],
-                                  //articleTitle: title,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Card(
-                            margin: EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AspectRatio(
-                                  aspectRatio: 191 / 100,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(8.0),
-                                      topRight: Radius.circular(8.0),
-                                    ),
-                                    child: imageUrl != null
-                                        ? Image.network(
-                                            imageUrl,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Container(),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    title,
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ArticleDetail(
+                              articleUrl: _searchResults[index]['link'],
                             ),
                           ),
                         );
                       },
-                    ),
-                  ),
+                      child: Card(
+                        margin: EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AspectRatio(
+                              aspectRatio: 191 / 100,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(8.0),
+                                  topRight: Radius.circular(8.0),
+                                ),
+                                child: imageUrl != null
+                                    ? Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                )
+                                    : Container(),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                title,
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              _buildPaginationButtons(),
+            ],
+          ),
+        ),
       ],
     );
   }
-}
 
+  Widget _buildPaginationButtons() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: _currentPage > 1 ? () => _searchWordPress(_searchController.text, page: _currentPage - 1) : null,
+            child: Text('前へ'),
+          ),
+          SizedBox(width: 16.0),
+          Text('$_currentPage / $_totalPages'),
+          SizedBox(width: 16.0),
+          ElevatedButton(
+            onPressed: _currentPage < _totalPages ? () => _searchWordPress(_searchController.text, page: _currentPage + 1) : null,
+            child: Text('次へ'),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class SettingsTab extends StatelessWidget {
   @override
@@ -470,7 +578,8 @@ class SettingsTab extends StatelessWidget {
                 tiles: [
                   SettingsTile(
                     leading: Icon(Icons.login),
-                    title: Text('ログイン・アカウント'),
+                    title: Text('ログイン'),
+                    value: Text('沿線ちゃっとアカウントをお持ちの方'),
                     onPressed: (BuildContext context) {
                       Navigator.push(
                         context,
@@ -521,14 +630,24 @@ class SettingsTab extends StatelessWidget {
                     },
                     // onPressed: (BuildContext context) {},
                   ),
+                  SettingsTile(
+                    leading: Icon(Icons.description),
+                    title: Text('リリースノートを見る'),
+                    value: Text('外部アプリで開きます'),
+                    onPressed: (BuildContext context) {
+                      // Twitterページにジャンプする
+                      launch('https://ensenchat.com/?page_id=5375');
+                    },
+                  ),
                 ],
               ),
               SettingsSection(
                 title: Text('サポート'),
                 tiles: [
                   SettingsTile(
-                    leading: Icon(Icons.verified),
+                    leading: Icon(Icons.check_circle),
                     title: Text('沿線ちゃっとのTwitterへ'),
+                    value: Text('外部アプリで開きます'),
                     onPressed: (BuildContext context) {
                       // Twitterページにジャンプする
                       launch('https://twitter.com/ensenchat');
@@ -593,6 +712,7 @@ class SettingsTab extends StatelessWidget {
                   SettingsTile(
                     leading: Icon(Icons.edit),
                     title: Text('ログイン'),
+                    value: Text('管理画面へ遷移します'),
                     onPressed: (BuildContext context) {
                       Navigator.push(
                         context,
