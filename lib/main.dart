@@ -126,7 +126,7 @@ Future<void> _initNotification() async {
   flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
       android: AndroidInitializationSettings(
-          '@mipmap/ic_launcher'), //通知アイコンの設定は適宜行ってください
+          'icon'), 
       iOS: DarwinInitializationSettings(),
     ),
     onDidReceiveNotificationResponse: (details) {
@@ -489,28 +489,15 @@ class SettingsTab extends StatelessWidget {
                 title: Text('アプリ情報'),
                 tiles: [
                   SettingsTile(
-                    title: Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(Icons.info),
-                            SizedBox(width: 32),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('沿線ちゃっと'),
-                                Text('©2024 沿線ちゃっと編集部'),
-                              ],
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
+                    leading: Icon(Icons.info),
+                    title: Text('沿線ちゃっと '),
+                    value: Text('©2024 沿線ちゃっと編集部'),
+                    // onPressed: (BuildContext context) {},
                   ),
                   SettingsTile(
                     leading: Icon(Icons.android),
-                    title: Text('バージョン \n${packageInfo!.version}'),
+                    title: Text('バージョン '),
+                    value: Text('${packageInfo!.version}'),
                     // onPressed: (BuildContext context) {},
                   ),
 
@@ -526,7 +513,12 @@ class SettingsTab extends StatelessWidget {
                   ),
                   SettingsTile(
                     leading: Icon(Icons.account_circle),
-                    title: Text('開発 ：沿線ちゃっと編集部'),
+                    title: Text('メンテナー '),
+                    value: Text('摩耗型フリーナ'),
+                    onPressed: (BuildContext context) {
+                      // 開発者のTwitterページにジャンプする
+                      launch('https://twitter.com/focalors_led');
+                    },
                     // onPressed: (BuildContext context) {},
                   ),
                 ],
@@ -538,7 +530,7 @@ class SettingsTab extends StatelessWidget {
                     leading: Icon(Icons.verified),
                     title: Text('沿線ちゃっとのTwitterへ'),
                     onPressed: (BuildContext context) {
-                      // 開発者のTwitterページにジャンプする
+                      // Twitterページにジャンプする
                       launch('https://twitter.com/ensenchat');
                     },
                   ),
