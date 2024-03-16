@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:settings_ui/settings_ui.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:async';
@@ -13,6 +12,15 @@ import 'firebase_options.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:twitter_login/twitter_login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'login.dart';
+import 'package:package_info/package_info.dart';
+
 
 
 
@@ -275,37 +283,110 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 
-class HomeTab extends StatefulWidget {
-  @override
-  _HomeTabState createState() => _HomeTabState();
-}
-
-class _HomeTabState extends State<HomeTab> {
-  late WebViewController _webViewController;
-
+class HomeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // WebView内でバックできる場合
-        if (await _webViewController.canGoBack()) {
-          _webViewController.goBack();
-          return false;
-        } else {
-          // WebView内でバックできない場合は通常の戻る操作を行う
-          return true;
-        }
-      },
-      child: WebView(
-        initialUrl: 'https://ensenchat.com/',
-        javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (controller) {
-          _webViewController = controller;
-        },
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('ホーム'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: _buildPostList(context),
+          ),
+          _buildPostInput(context),
+        ],
       ),
     );
   }
+
+  Widget _buildPostList(BuildContext context) {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance.collection('posts').snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(child: Text('エラーが発生しました'));
+        }
+
+        if (snapshot.hasData) {
+          final posts = snapshot.data!.docs;
+          return ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final postData = posts[index];
+              final postContent = postData['content'];
+              final username = postData['username'];
+              return ListTile(
+                title: Text(postContent),
+                subtitle: Text(username),
+              );
+            },
+          );
+        }
+
+        return SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildPostInput(BuildContext context) {
+    TextEditingController _textEditingController = TextEditingController();
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _textEditingController,
+              decoration: InputDecoration(
+                hintText: '何をつぶやきますか？',
+              ),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.send),
+            onPressed: () {
+              _submitPost(context, _textEditingController.text);
+              _textEditingController.clear();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _submitPost(BuildContext context, String content) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final username = user.displayName;
+      try {
+        await FirebaseFirestore.instance.collection('posts').add({
+          'content': content,
+          'username': username,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('投稿しました'),
+        ));
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('投稿に失敗しました'),
+        ));
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('ログインしていません'),
+      ));
+    }
+  }
 }
+
 
 class ChatTab extends StatefulWidget {
   @override
@@ -580,21 +661,16 @@ class SettingsTab extends StatelessWidget {
                     leading: Icon(Icons.login),
                     title: Text('ログイン'),
                     value: Text('沿線ちゃっとアカウントをお持ちの方'),
-                    onPressed: (BuildContext context) {
-                      Navigator.push(
+                    onPressed: (BuildContext context) async {
+                      await Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => WebViewPageCustom(
-                            customUrl: 'https://ensenchat.com/#/',
-                            customTitle: '沿線ちゃっとにログイン',
-                          ),
-                        ),
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
                       );
                     },
                   ),
                 ],
               ),
-               SettingsSection(
+              SettingsSection(
                 title: Text('アプリ情報'),
                 tiles: [
                   SettingsTile(
@@ -736,6 +812,8 @@ class SettingsTab extends StatelessWidget {
     );
   }
 }
+
+
 
 class WebViewPageCustom extends StatelessWidget {
   final String customUrl;
