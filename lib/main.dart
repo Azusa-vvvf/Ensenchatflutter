@@ -20,6 +20,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'login.dart';
 import 'package:package_info/package_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -250,7 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildTabContent(int index) {
     switch (index) {
       case 0:
-        return HomeTab();
+        return AuthenticationWrapper();
       case 1:
         return ChieTab();
       case 2:
@@ -283,109 +284,330 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 
+
+
+
+class AuthenticationWrapper extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else {
+          if (snapshot.hasData) {
+            return HomeTab();
+          } else {
+            return AuthenticationScreen();
+          }
+        }
+      },
+    );
+  }
+}
+
+class AuthenticationScreen extends StatelessWidget {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(labelText: 'Password'),
+              obscureText: true,
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                FirebaseAuth.instance.signInWithEmailAndPassword(
+                  email: _emailController.text.trim(),
+                  password: _passwordController.text.trim(),
+                );
+              },
+              child: Text('Login'),
+            ),
+            SizedBox(height: 16.0),
+            TextButton(
+              onPressed: () {
+                FirebaseAuth.instance.createUserWithEmailAndPassword(
+                  email: _emailController.text.trim(),
+                  password: _passwordController.text.trim(),
+                );
+              },
+              child: Text('Create Account'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class HomeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ホーム'),
+        title: Text('Timeline'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _buildPostList(context),
+      body: Timeline(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CreatePostScreen()),
+          );
+        },
+        child: Icon(Icons.add),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
           ),
-          _buildPostInput(context),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildPostList(BuildContext context) {
+class CreatePostScreen extends StatefulWidget {
+  @override
+  _CreatePostScreenState createState() => _CreatePostScreenState();
+}
+
+class _CreatePostScreenState extends State<CreatePostScreen> {
+  final TextEditingController _postController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Create Post'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _postController,
+              decoration: InputDecoration(
+                hintText: 'What\'s on your mind?',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                _postContent(_postController.text.trim(), context);
+              },
+              child: Text('Post'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _postContent(String content, BuildContext context) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      await FirebaseFirestore.instance.collection('posts').add({
+        'content': content,
+        'timestamp': Timestamp.now(),
+        'userId': user!.uid,
+        // Add other post-related data like username, etc.
+      });
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error posting content: $e');
+    }
+  }
+}
+
+class Timeline extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('posts').snapshots(),
+      stream: FirebaseFirestore.instance.collection('posts').orderBy('timestamp', descending: true).snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return Center(child: Text('エラーが発生しました'));
-        }
-
-        if (snapshot.hasData) {
+          return CircularProgressIndicator();
+        } else {
           final posts = snapshot.data!.docs;
           return ListView.builder(
             itemCount: posts.length,
             itemBuilder: (context, index) {
-              final postData = posts[index];
-              final postContent = postData['content'];
-              final username = postData['username'];
-              return ListTile(
-                title: Text(postContent),
-                subtitle: Text(username),
+              final post = posts[index];
+              return PostWidget(
+                content: post['content'],
+                timestamp: post['timestamp'],
+                // Add other post-related data
               );
             },
           );
         }
-
-        return SizedBox.shrink();
       },
     );
   }
+}
 
-  Widget _buildPostInput(BuildContext context) {
-    TextEditingController _textEditingController = TextEditingController();
+class PostWidget extends StatelessWidget {
+  final String content;
+  final Timestamp timestamp;
+  // Add other post-related data here
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _textEditingController,
-              decoration: InputDecoration(
-                hintText: '何をつぶやきますか？',
-              ),
-            ),
-          ),
+  PostWidget({
+    required this.content,
+    required this.timestamp,
+    // Add other post-related data
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(content),
+      subtitle: Text(timestamp.toDate().toString()),
+      // Display other post-related data
+    );
+  }
+}
+
+class ProfileScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Profile'),
+        actions: [
           IconButton(
-            icon: Icon(Icons.send),
+            icon: Icon(Icons.logout),
             onPressed: () {
-              _submitPost(context, _textEditingController.text);
-              _textEditingController.clear();
+              FirebaseAuth.instance.signOut();
             },
           ),
         ],
       ),
+      body: user != null
+          ? Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 50,
+              // Display user's profile image here
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'Name: ${user.displayName ?? "Not provided"}',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            SizedBox(height: 8.0),
+            Text(
+              'Email: ${user.email ?? "Not provided"}',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to edit profile screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EditProfileScreen()),
+                );
+              },
+              child: Text('Edit Profile'),
+            ),
+          ],
+        ),
+      )
+          : Center(
+        child: Text('User not logged in'),
+      ),
+    );
+  }
+}
+
+class EditProfileScreen extends StatefulWidget {
+  @override
+  _EditProfileScreenState createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  final TextEditingController _nameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    _nameController.text = user?.displayName ?? '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit Profile'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: 'Name'),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                _updateProfile(_nameController.text.trim());
+              },
+              child: Text('Save'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  void _submitPost(BuildContext context, String content) async {
+  void _updateProfile(String newName) {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final username = user.displayName;
-      try {
-        await FirebaseFirestore.instance.collection('posts').add({
-          'content': content,
-          'username': username,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('投稿しました'),
-        ));
-      } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('投稿に失敗しました'),
-        ));
-      }
-    } else {
+    user?.updateDisplayName(newName).then((_) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('ログインしていません'),
+        content: Text('Profile updated successfully'),
       ));
-    }
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to update profile: $error'),
+      ));
+    });
   }
 }
+
 
 
 class ChatTab extends StatefulWidget {

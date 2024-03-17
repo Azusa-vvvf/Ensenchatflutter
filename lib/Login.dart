@@ -6,120 +6,87 @@ import 'package:firebase_core/firebase_core.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
-  _MyAuthPageState createState() => _MyAuthPageState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyAuthPageState extends State<LoginScreen> {
-  // 入力されたメールアドレス
-  String newUserEmail = "";
-  // 入力されたパスワード
-  String newUserPassword = "";
-  // 入力されたメールアドレス（ログイン）
-  String loginUserEmail = "";
-  // 入力されたパスワード（ログイン）
-  String loginUserPassword = "";
-  // 登録・ログインに関する情報を表示
-  String infoText = "";
+class _MyHomePageState extends State<LoginScreen> {
+  // 入力したメールアドレス・パスワード
+  String _email = '';
+  String _password = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Container(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(24),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              // 1行目 メールアドレス入力用テキストフィールド
               TextFormField(
-                // テキスト入力のラベルを設定
-                decoration: InputDecoration(labelText: "メールアドレス"),
+                decoration: const InputDecoration(labelText: 'メールアドレス'),
                 onChanged: (String value) {
                   setState(() {
-                    newUserEmail = value;
+                    _email = value;
                   });
                 },
               ),
-              const SizedBox(height: 8),
+              // 2行目 パスワード入力用テキストフィールド
               TextFormField(
-                decoration: InputDecoration(labelText: "パスワード（６文字以上）"),
-                // パスワードが見えないようにする
+                decoration: const InputDecoration(labelText: 'パスワード'),
                 obscureText: true,
                 onChanged: (String value) {
                   setState(() {
-                    newUserPassword = value;
+                    _password = value;
                   });
                 },
               ),
-              const SizedBox(height: 8),
+              // 3行目 ユーザ登録ボタン
               ElevatedButton(
+                child: const Text('ユーザ登録'),
                 onPressed: () async {
                   try {
-                    // メール/パスワードでユーザー登録
-                    final FirebaseAuth auth = FirebaseAuth.instance;
-                    final UserCredential result =
-                    await auth.createUserWithEmailAndPassword(
-                      email: newUserEmail,
-                      password: newUserPassword,
-                    );
-
-                    // 登録したユーザー情報
-                    final User user = result.user!;
-                    setState(() {
-                      infoText = "${user.email}で登録しました";
-                    });
+                    final User? user = (await FirebaseAuth.instance
+                        .createUserWithEmailAndPassword(
+                        email: _email, password: _password))
+                        .user;
+                    if (user != null)
+                      print("ユーザ登録しました ${user.email} , ${user.uid}");
                   } catch (e) {
-                    // 登録に失敗した場合
-                    setState(() {
-                      infoText = "${e.toString()}での登録に失敗しました";
-                    });
+                    print(e);
                   }
                 },
-                child: Text("ユーザー登録"),
               ),
-              const SizedBox(height: 32),
-              TextFormField(
-                decoration: InputDecoration(labelText: "メールアドレス"),
-                onChanged: (String value) {
-                  setState(() {
-                    loginUserEmail = value;
-                  });
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: "パスワード"),
-                obscureText: true,
-                onChanged: (String value) {
-                  setState(() {
-                    loginUserPassword = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 8),
+              // 4行目 ログインボタン
               ElevatedButton(
+                child: const Text('ログイン'),
                 onPressed: () async {
                   try {
                     // メール/パスワードでログイン
-                    final FirebaseAuth auth = FirebaseAuth.instance;
-                    final UserCredential result =
-                    await auth.signInWithEmailAndPassword(
-                      email: loginUserEmail,
-                      password: loginUserPassword,
-                    );
-                    // ログインに成功した場合
-                    final User user = result.user!;
-                    setState(() {
-                      infoText = "ログイン成功：${user.email}";
-                    });
+                    final User? user = (await FirebaseAuth.instance
+                        .signInWithEmailAndPassword(
+                        email: _email, password: _password))
+                        .user;
+                    if (user != null)
+                      print("ログインしました　${user.email} , ${user.uid}");
                   } catch (e) {
-                    // ログインに失敗した場合
-                    setState(() {
-                      infoText = "ログイン失敗：${e.toString()}";
-                    });
+                    print(e);
                   }
                 },
-                child: Text("ログイン"),
               ),
-              const SizedBox(height: 8),
-              Text(infoText)
+              // 5行目 パスワードリセット登録ボタン
+              ElevatedButton(
+                  child: const Text('パスワードリセット'),
+                  onPressed: () async {
+                    try {
+                      await FirebaseAuth.instance
+                          .sendPasswordResetEmail(email: _email);
+                      print("パスワードリセット用のメールを送信しました");
+                    } catch (e) {
+                      print(e);
+                    }
+                  }),
             ],
           ),
         ),
@@ -127,7 +94,6 @@ class _MyAuthPageState extends State<LoginScreen> {
     );
   }
 }
-
 
 /*class LoginScreen extends StatelessWidget {
   @override
