@@ -231,10 +231,6 @@ class _MyHomePageState extends State<MyHomePage> {
             label: '知恵袋',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble),
-            label: 'ちゃっと',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.article),
             label: '記事',
           ),
@@ -251,14 +247,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildTabContent(int index) {
     switch (index) {
       case 0:
-        return AuthenticationWrapper();
+        return HomeTab();
       case 1:
         return ChieTab();
       case 2:
-        return ChatTab();
-      case 3:
         return SearchTab();
-      case 4:
+      case 3:
         return SettingsTab();
       default:
         return Container();
@@ -268,14 +262,12 @@ class _MyHomePageState extends State<MyHomePage> {
   String _getAppBarTitle(int index) {
     switch (index) {
       case 0:
-        return 'ホーム';
+        return 'ちゃっと';
       case 1:
         return '知恵袋';
       case 2:
-        return 'ちゃっと';
-      case 3:
         return '記事';
-      case 4:
+      case 3:
         return '設定';
       default:
         return '';
@@ -287,360 +279,186 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
-class AuthenticationWrapper extends StatelessWidget {
+
+
+
+
+
+
+class HomeTab extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else {
-          if (snapshot.hasData) {
-            return HomeTab();
-          } else {
-            return AuthenticationScreen();
-          }
-        }
-      },
-    );
-  }
+  _HomeTabState createState() => _HomeTabState();
 }
 
-class AuthenticationScreen extends StatelessWidget {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class _HomeTabState extends State<HomeTab> {
+  String _selectedRegion = '関東地方'; // 初期選択地域
+  String _selectedPrefecture = ''; // 選択された都道府県
+  String _selectedRailway = ''; // 選択された鉄道路線
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Login'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                FirebaseAuth.instance.signInWithEmailAndPassword(
-                  email: _emailController.text.trim(),
-                  password: _passwordController.text.trim(),
-                );
-              },
-              child: Text('Login'),
-            ),
-            SizedBox(height: 16.0),
-            TextButton(
-              onPressed: () {
-                FirebaseAuth.instance.createUserWithEmailAndPassword(
-                  email: _emailController.text.trim(),
-                  password: _passwordController.text.trim(),
-                );
-              },
-              child: Text('Create Account'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+  List<String> _regions = ['北海道', '東北地方', '関東地方', '東海地方', '北陸地方', '近畿地方', '中国地方', '四国地方', '九州地方・沖縄', 'その他']; // 地域リスト
+  Map<String, List<String>> _prefecturesByRegion = {
 
-class HomeTab extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Timeline'),
-      ),
-      body: Timeline(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CreatePostScreen()),
-          );
-        },
-        child: Icon(Icons.add),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-}
+    '北海道': ['北海道',],
+    '東北地方': ['青森県', '岩手県', '秋田県', '宮城県', '山形県', '福島県', '新潟県'],
+    '関東地方': ['東京都', '神奈川県', '埼玉県', '千葉県', '茨城県', '栃木県', '群馬県', '山梨県', '長野県'],
+    '東海地方': ['静岡県', '岐阜県', '愛知県', '三重県'],
+    '北陸地方': ['富山県', '石川県', '福井県'],
+    '近畿地方': ['大阪府', '京都府', '奈良県', '兵庫県', '滋賀県', '和歌山県'],
+    '中国地方': ['鳥取県', '島根県', '岡山県', '広島県', '山口県'],
+    '四国地方': ['徳島県', '香川県', '愛媛県', '高知県'],
+    '九州地方・沖縄': ['福岡県', '佐賀県', '長崎県', '大分県', '熊本県', '宮崎県', '鹿児島県'],
+    'その他': ['一般','趣味'],
 
-class CreatePostScreen extends StatefulWidget {
-  @override
-  _CreatePostScreenState createState() => _CreatePostScreenState();
-}
+  }; // 地域ごとの都道府県リスト
 
-class _CreatePostScreenState extends State<CreatePostScreen> {
-  final TextEditingController _postController = TextEditingController();
+  Map<String, Map<String, String>> _urlsByRailway = {
+    'JR北海道総合': {'北海道': 'https://ensenchat.com/topic/jr%e5%8c%97%e6%b5%b7%e9%81%93%e7%b7%8f%e5%90%88%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89/','北海道':'https://ensenchat.com/topic/jr%e5%8c%97%e6%b5%b7%e9%81%93%e7%b7%8f%e5%90%88%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89/' },
+    '札幌市交通局総合': {'北海道': 'URL', },
+    '札幌市電総合': {'北海道': 'URL', },
+    '道南いさりび鉄道総合': {'北海道': 'URL', },
+    '函館市電総合': {'会社別総合': 'URL', },
+    '北海道新幹線': {'北海道': 'URL','青森県':'', },
+    '海峡線': {'北海道': 'URL', '青森県' : '',},
+    '函館本線': {'北海道': 'URL', },
+    '室蘭本線': {'北海道': 'URL', },
+    '根室本線': {'北海道': 'URL', },
+    '石勝線': {'北海道': 'URL', },
+    '石北本線': {'北海道': 'URL', },
+    '宗谷本線': {'北海道': 'URL', },
+    '釧網本線': {'北海道': 'URL', },
+    '千歳線': {'北海道': 'URL', },
+    '札沼線': {'北海道': 'URL', },
+    '留萌本線': {'北海道': 'URL', },
+    '富良野線': {'北海道': 'URL', },
+    '札幌市営地下鉄南北線': {'北海道': 'URL', },
+    '札幌市営地下鉄東西線': {'北海道': 'URL', },
+    '札幌市営地下鉄東豊線': {'北海道': 'URL', },
+    '一条線': {'北海道': 'URL', },
+    '山鼻線': {'北海道': 'URL', },
+    '山鼻西線': {'北海道': 'URL', },
+    '都心線': {'北海道': 'URL', },
+    '函館市電本線': {'北海道': 'URL', },
+    '宝来・谷地頭線': {'北海道': 'URL', },
+    '大森線': {'北海道': 'URL', },
+    '湯の川線': {'北海道': 'URL', },
+    'JR東日本総合': {'青森県': 'https://ensenchat.com/topic/jr%e6%9d%b1%e6%97%a5%e6%9c%ac%e7%b7%8f%e5%90%88%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89-part-1/', },
+    '弘南鉄道総合': {'青森県': 'URL', },
+    '津軽鉄道総合': {'青森県': 'URL'},
+    '青い森鉄道総合': {'青森県': 'URL'},
+    'IGRいわて銀河鉄道総合': {'青森県': 'URL'},
+    '東北新幹線': {'青森県': 'URL', },
+    '奥羽本線': {'青森県': 'URL', },
+    '大湊線': {'青森県': 'URL', },
+    '五能線': {'青森県': 'URL', },
+    '八戸線': {'青森県': 'URL', },
+    '津軽線': {'青森県': 'URL', },
+    '弘南線': {'青森県': 'URL', },
+    '大鍔線': {'青森県': 'URL', },
+    // 他の路線と都道府県に対するURLをここに追加
+  }; // 路線ごとのURLリスト
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Create Post'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _postController,
-              decoration: InputDecoration(
-                hintText: 'What\'s on your mind?',
-              ),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                _postContent(_postController.text.trim(), context);
-              },
-              child: Text('Post'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _postContent(String content, BuildContext context) async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      await FirebaseFirestore.instance.collection('posts').add({
-        'content': content,
-        'timestamp': Timestamp.now(),
-        'userId': user!.uid,
-        // Add other post-related data like username, etc.
-      });
-      Navigator.pop(context);
-    } catch (e) {
-      print('Error posting content: $e');
-    }
-  }
-}
-
-class Timeline extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('posts').orderBy('timestamp', descending: true).snapshots(),
-      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else {
-          final posts = snapshot.data!.docs;
-          return ListView.builder(
-            itemCount: posts.length,
-            itemBuilder: (context, index) {
-              final post = posts[index];
-              return PostWidget(
-                content: post['content'],
-                timestamp: post['timestamp'],
-                // Add other post-related data
-              );
-            },
-          );
-        }
-      },
-    );
-  }
-}
-
-class PostWidget extends StatelessWidget {
-  final String content;
-  final Timestamp timestamp;
-  // Add other post-related data here
-
-  PostWidget({
-    required this.content,
-    required this.timestamp,
-    // Add other post-related data
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(content),
-      subtitle: Text(timestamp.toDate().toString()),
-      // Display other post-related data
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-          ),
-        ],
-      ),
-      body: user != null
-          ? Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 50,
-              // Display user's profile image here
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Name: ${user.displayName ?? "Not provided"}',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            SizedBox(height: 8.0),
-            Text(
-              'Email: ${user.email ?? "Not provided"}',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to edit profile screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EditProfileScreen()),
-                );
-              },
-              child: Text('Edit Profile'),
-            ),
-          ],
-        ),
-      )
-          : Center(
-        child: Text('User not logged in'),
-      ),
-    );
-  }
-}
-
-class EditProfileScreen extends StatefulWidget {
-  @override
-  _EditProfileScreenState createState() => _EditProfileScreenState();
-}
-
-class _EditProfileScreenState extends State<EditProfileScreen> {
-  final TextEditingController _nameController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    final user = FirebaseAuth.instance.currentUser;
-    _nameController.text = user?.displayName ?? '';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit Profile'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Name'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                _updateProfile(_nameController.text.trim());
-              },
-              child: Text('Save'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _updateProfile(String newName) {
-    final user = FirebaseAuth.instance.currentUser;
-    user?.updateDisplayName(newName).then((_) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Profile updated successfully'),
-      ));
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to update profile: $error'),
-      ));
+  void _onRegionChanged(String region) {
+    setState(() {
+      _selectedRegion = region;
+      _selectedPrefecture = '';
+      _selectedRailway = '';
     });
   }
-}
 
+  void _onPrefectureSelected(String? prefecture) {
+    setState(() {
+      _selectedPrefecture = prefecture ?? '';
+    });
+  }
 
+  void _onRailwaySelected(String railway) {
+    setState(() {
+      _selectedRailway = railway;
+      if (_urlsByRailway.containsKey(railway) && _urlsByRailway[railway]!.containsKey(_selectedPrefecture)) {
+        String url = _urlsByRailway[railway]![_selectedPrefecture]!;
+        _launchWebView(url, railway);
+      }
+    });
+  }
 
-class ChatTab extends StatefulWidget {
-  @override
-  _ChatTabState createState() => _ChatTabState();
-}
-
-class _ChatTabState extends State<ChatTab> {
-  late WebViewController _webViewController;
+  Future<void> _launchWebView(String url, String title) async {
+    await Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (BuildContext context) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(title, textAlign: TextAlign.center),
+            centerTitle: true,
+          ),
+          body: WebView(
+            initialUrl: url,
+            javascriptMode: JavascriptMode.unrestricted,
+          ),
+        );
+      },
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // WebView内でバックできる場合
-        if (await _webViewController.canGoBack()) {
-          _webViewController.goBack();
-          return false;
-        } else {
-          // WebView内でバックできない場合は通常の戻る操作を行う
-          return true;
-        }
-      },
-      child: WebView(
-        initialUrl: 'https://ensenchat.com/chat/',
-        javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (controller) {
-          _webViewController = controller;
-        },
+    return Scaffold(
+
+      body: Column(
+        children: [
+          Container(
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _regions.length,
+              itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                  onTap: () => _onRegionChanged(_regions[index]),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      _regions[index],
+                      style: TextStyle(
+                        color: _selectedRegion == _regions[index] ? Colors.blue : Colors.black,
+                        fontWeight: _selectedRegion == _regions[index] ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _prefecturesByRegion[_selectedRegion]?.length ?? 0,
+              itemBuilder: (BuildContext context, int index) {
+                String? prefecture = _prefecturesByRegion[_selectedRegion]?[index];
+                if (prefecture != null) {
+                  return ExpansionTile(
+                    title: Text(prefecture),
+                    children: _urlsByRailway.keys.map((railway) {
+                      if (_urlsByRailway[railway]?.containsKey(prefecture) ?? false) {
+                        return ListTile(
+                          title: Text(railway),
+                          onTap: () {
+                            _onPrefectureSelected(prefecture);
+                            _onRailwaySelected(railway);
+                          },
+                        );
+                      }
+                      return SizedBox.shrink();
+                    }).toList(),
+                  );
+                }
+                return SizedBox(); // 何も返さない場合は空のWidgetを返す
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+
+
 
 class ChieTab extends StatefulWidget {
   @override
