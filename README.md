@@ -1,15 +1,16 @@
-# 沿線ちゃっと
+# Freedom Train
 
-[沿線ちゃっと](https://www.ensenchat.com)のアプリを製作するプロジェクトです。
+[FreedomTrain](https://freedomtrain.jp/)のアプリを製作するプロジェクトです。
 Flutterを用いて開発を行います。
 
 # 開発について
 ## 管轄
-運営、摩耗型フリーナ
+ひな型製作者：摩耗型フリーナ
+アレンジ：Azusa
 ## 開発言語・フレームワーク
 Dart／Flutter
 ## 時期
-夏頃まで分担し開発、8月1日リリース予定
+開発時期未定
 開発後バグや追加機能等あれば定期的に更新
 ## IDE(統合開発環境)
 Visual Studio Code、もしくはAndroid Studioをお薦めしますが、
