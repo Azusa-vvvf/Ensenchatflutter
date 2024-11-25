@@ -48,8 +48,8 @@ class _MyHomePageState extends State<LoginScreen> {
                 onPressed: () async {
                   try {
                     final User? user = (await FirebaseAuth.instance
-                        .createUserWithEmailAndPassword(
-                        email: _email, password: _password))
+                            .createUserWithEmailAndPassword(
+                                email: _email, password: _password))
                         .user;
                     if (user != null)
                       print("ユーザ登録しました ${user.email} , ${user.uid}");
@@ -65,8 +65,8 @@ class _MyHomePageState extends State<LoginScreen> {
                   try {
                     // メール/パスワードでログイン
                     final User? user = (await FirebaseAuth.instance
-                        .signInWithEmailAndPassword(
-                        email: _email, password: _password))
+                            .signInWithEmailAndPassword(
+                                email: _email, password: _password))
                         .user;
                     if (user != null)
                       print("ログインしました　${user.email} , ${user.uid}");

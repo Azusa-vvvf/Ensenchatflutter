@@ -22,10 +22,6 @@ import 'login.dart';
 import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
-
-
 const locale = Locale("ja", "JP");
 
 //独自のマテリアルカラーを定義
@@ -75,8 +71,8 @@ void main() async {
   final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   if (Platform.isAndroid) {
     final androidImplementation =
-    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
     await androidImplementation?.createNotificationChannel(
       const AndroidNotificationChannel(
         'default_notification_channel',
@@ -135,14 +131,13 @@ Future<void> _initNotification() async {
   // ローカルから表示したプッシュ通知をタップした場合の処理を設定
   flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
-      android: AndroidInitializationSettings(
-          'icon'), 
+      android: AndroidInitializationSettings('icon'),
       iOS: DarwinInitializationSettings(),
     ),
     onDidReceiveNotificationResponse: (details) {
       if (details.payload != null) {
         final payloadMap =
-        json.decode(details.payload!) as Map<String, dynamic>;
+            json.decode(details.payload!) as Map<String, dynamic>;
         debugPrint(payloadMap.toString());
       }
     },
@@ -180,14 +175,21 @@ class MyApp extends StatelessWidget {
         textTheme: TextTheme(
           bodyText1: TextStyle(fontFamily: "NotoSansJP", color: Colors.black),
           bodyText2: TextStyle(fontFamily: "NotoSansJP", color: Colors.black),
-          headline6: TextStyle(fontFamily: "NotoSansJP", fontSize: 20, fontWeight: FontWeight.bold),
+          headline6: TextStyle(
+              fontFamily: "NotoSansJP",
+              fontSize: 20,
+              fontWeight: FontWeight.bold),
           subtitle1: TextStyle(fontFamily: "NotoSansJP", color: Colors.black),
           subtitle2: TextStyle(fontFamily: "NotoSansJP", color: Colors.black),
         ),
         primaryTextTheme: TextTheme(
           bodyText1: TextStyle(fontFamily: "NotoSansJP", color: Colors.white),
           bodyText2: TextStyle(fontFamily: "NotoSansJP", color: Colors.white),
-          headline6: TextStyle(fontFamily: "NotoSansJP", fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+          headline6: TextStyle(
+              fontFamily: "NotoSansJP",
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white),
           subtitle1: TextStyle(fontFamily: "NotoSansJP", color: Colors.white),
           subtitle2: TextStyle(fontFamily: "NotoSansJP", color: Colors.white),
         ),
@@ -234,7 +236,6 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.article),
             label: '記事',
           ),
-
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: '設定',
@@ -275,16 +276,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
 class HomeTab extends StatefulWidget {
   @override
   _HomeTabState createState() => _HomeTabState();
@@ -295,10 +286,22 @@ class _HomeTabState extends State<HomeTab> {
   String _selectedPrefecture = ''; // 選択された都道府県
   String _selectedRailway = ''; // 選択された鉄道路線
 
-  List<String> _regions = ['北海道', '東北地方', '関東地方', '東海地方', '北陸地方', '近畿地方', '中国地方', '四国地方', '九州地方・沖縄', 'その他']; // 地域リスト
+  List<String> _regions = [
+    '北海道',
+    '東北地方',
+    '関東地方',
+    '東海地方',
+    '北陸地方',
+    '近畿地方',
+    '中国地方',
+    '四国地方',
+    '九州地方・沖縄',
+    'その他'
+  ]; // 地域リスト
   Map<String, List<String>> _prefecturesByRegion = {
-
-    '北海道': ['北海道',],
+    '北海道': [
+      '北海道',
+    ],
     '東北地方': ['青森県', '岩手県', '秋田県', '宮城県', '山形県', '福島県', '新潟県'],
     '関東地方': ['東京都', '神奈川県', '埼玉県', '千葉県', '茨城県', '栃木県', '群馬県', '山梨県', '長野県'],
     '東海地方': ['静岡県', '岐阜県', '愛知県', '三重県'],
@@ -307,77 +310,213 @@ class _HomeTabState extends State<HomeTab> {
     '中国地方': ['鳥取県', '島根県', '岡山県', '広島県', '山口県'],
     '四国地方': ['徳島県', '香川県', '愛媛県', '高知県'],
     '九州地方・沖縄': ['福岡県', '佐賀県', '長崎県', '大分県', '熊本県', '宮崎県', '鹿児島県'],
-    'その他': ['一般','趣味'],
-
+    'その他': ['一般', '趣味'],
   }; // 地域ごとの都道府県リスト
 
   Map<String, Map<String, String>> _urlsByRailway = {
-    'なんでも実況E': {'一般': 'https://ensenchat.com/forum/%e3%81%aa%e3%82%93%e3%81%a7%e3%82%82%e5%ae%9f%e6%b3%81e/', },
-'ニュー速ENCHA': {'一般': 'https://ensenchat.com/forum/%e3%83%8b%e3%83%a5%e3%83%bc%e9%80%9fencha/', },
-'知恵袋': {'一般': 'https://ensenchat.com/forum/%e7%9f%a5%e6%81%b5%e8%a2%8b/', },
-'個スレ': {'一般': 'https://ensenchat.com/forum/%e5%80%8b%e3%82%b9%e3%83%ac/', },
-'運営スレ': {'一般': 'https://ensenchat.com/topic/%e9%81%8b%e5%96%b6%e5%95%8f%e3%81%84%e5%90%88%e3%82%8f%e3%81%9b%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89/', },
-'乗り鉄': {'趣味': 'https://ensenchat.com/forum/%e4%b9%97%e3%82%8a%e9%89%84/', },
-'撮り鉄': {'趣味': 'https://ensenchat.com/forum/%e6%92%ae%e3%82%8a%e9%89%84/', },
-'模型鉄': {'趣味': 'https://ensenchat.com/forum/%e6%a8%a1%e5%9e%8b%e9%89%84/', },
-'車両鉄': {'趣味': 'https://ensenchat.com/forum/%e8%bb%8a%e4%b8%a1%e9%89%84/', },
-'駅鉄': {'趣味': 'https://ensenchat.com/forum/%e9%a7%85%e9%89%84/', },
-'音鉄': {'趣味': 'https://ensenchat.com/forum/%e9%9f%b3%e9%89%84/', },
-'収集鉄': {'趣味': 'https://ensenchat.com/forum/%e5%8f%8e%e9%9b%86%e9%89%84/', },
-'駅弁鉄': {'趣味': 'https://ensenchat.com/forum/%e9%a7%85%e5%bc%81%e9%89%84/', },
-'配線鉄': {'趣味': 'https://ensenchat.com/forum/%e9%85%8d%e7%b7%9a%e9%89%84/', },
-'もじ鉄': {'趣味': 'https://ensenchat.com/forum/%e3%82%82%e3%81%98%e9%89%84/', },
-'時刻表鉄': {'趣味': 'https://ensenchat.com/forum/%e6%99%82%e5%88%bb%e8%a1%a8%e9%89%84/', },
-'懐古鉄': {'趣味': 'https://ensenchat.com/forum/%e6%87%90%e5%8f%a4%e9%89%84/', },
-'架空鉄': {'趣味': 'https://ensenchat.com/forum/%e6%9e%b6%e7%a9%ba%e9%89%84/', },
-'ゲーム鉄': {'趣味': 'https://ensenchat.com/forum/%e3%82%b2%e3%83%bc%e3%83%a0%e9%89%84/', },
-'歴史鉄': {'趣味': 'https://ensenchat.com/forum/%e6%ad%b4%e5%8f%b2%e9%89%84/', },
-'CG鉄': {'趣味': 'https://ensenchat.com/forum/cg%e9%89%84/', },
-'描き鉄': {'趣味': 'https://ensenchat.com/forum/%e6%8f%8f%e3%81%8d%e9%89%84/', },
+    'なんでも実況E': {
+      '一般':
+          'https://ensenchat.com/forum/%e3%81%aa%e3%82%93%e3%81%a7%e3%82%82%e5%ae%9f%e6%b3%81e/',
+    },
+    'ニュー速ENCHA': {
+      '一般':
+          'https://ensenchat.com/forum/%e3%83%8b%e3%83%a5%e3%83%bc%e9%80%9fencha/',
+    },
+    '知恵袋': {
+      '一般': 'https://ensenchat.com/forum/%e7%9f%a5%e6%81%b5%e8%a2%8b/',
+    },
+    '個スレ': {
+      '一般': 'https://ensenchat.com/forum/%e5%80%8b%e3%82%b9%e3%83%ac/',
+    },
+    '運営スレ': {
+      '一般':
+          'https://ensenchat.com/topic/%e9%81%8b%e5%96%b6%e5%95%8f%e3%81%84%e5%90%88%e3%82%8f%e3%81%9b%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89/',
+    },
+    '乗り鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e4%b9%97%e3%82%8a%e9%89%84/',
+    },
+    '撮り鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e6%92%ae%e3%82%8a%e9%89%84/',
+    },
+    '模型鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e6%a8%a1%e5%9e%8b%e9%89%84/',
+    },
+    '車両鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e8%bb%8a%e4%b8%a1%e9%89%84/',
+    },
+    '駅鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e9%a7%85%e9%89%84/',
+    },
+    '音鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e9%9f%b3%e9%89%84/',
+    },
+    '収集鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e5%8f%8e%e9%9b%86%e9%89%84/',
+    },
+    '駅弁鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e9%a7%85%e5%bc%81%e9%89%84/',
+    },
+    '配線鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e9%85%8d%e7%b7%9a%e9%89%84/',
+    },
+    'もじ鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e3%82%82%e3%81%98%e9%89%84/',
+    },
+    '時刻表鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e6%99%82%e5%88%bb%e8%a1%a8%e9%89%84/',
+    },
+    '懐古鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e6%87%90%e5%8f%a4%e9%89%84/',
+    },
+    '架空鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e6%9e%b6%e7%a9%ba%e9%89%84/',
+    },
+    'ゲーム鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e3%82%b2%e3%83%bc%e3%83%a0%e9%89%84/',
+    },
+    '歴史鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e6%ad%b4%e5%8f%b2%e9%89%84/',
+    },
+    'CG鉄': {
+      '趣味': 'https://ensenchat.com/forum/cg%e9%89%84/',
+    },
+    '描き鉄': {
+      '趣味': 'https://ensenchat.com/forum/%e6%8f%8f%e3%81%8d%e9%89%84/',
+    },
 
-
-    'JR北海道総合': {'北海道': 'https://ensenchat.com/topic/jr%e5%8c%97%e6%b5%b7%e9%81%93%e7%b7%8f%e5%90%88%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89/','青森県':'https://ensenchat.com/topic/jr%e5%8c%97%e6%b5%b7%e9%81%93%e7%b7%8f%e5%90%88%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89/' },
-    '札幌市交通局総合': {'北海道': 'URL', },
-    '札幌市電総合': {'北海道': 'URL', },
-    '道南いさりび鉄道総合': {'北海道': 'URL', },
-    '函館市電総合': {'北海道': 'URL', },
-    '北海道新幹線': {'北海道': 'https://ensenchat.com/topic/%e5%8c%97%e6%b5%b7%e9%81%93%e6%96%b0%e5%b9%b9%e7%b7%9a/','青森県':'https://ensenchat.com/topic/%e5%8c%97%e6%b5%b7%e9%81%93%e6%96%b0%e5%b9%b9%e7%b7%9a/', },
-    '海峡線': {'北海道': 'https://ensenchat.com/topic/%e6%b5%b7%e5%b3%a1%e7%b7%9a/', '青森県' : 'https://ensenchat.com/topic/%e6%b5%b7%e5%b3%a1%e7%b7%9a/',},
-    '函館本線': {'北海道': 'URL', },
-    '室蘭本線': {'北海道': 'URL', },
-    '根室本線': {'北海道': 'URL', },
-    '石勝線': {'北海道': 'URL', },
-    '石北本線': {'北海道': 'URL', },
-    '宗谷本線': {'北海道': 'URL', },
-    '釧網本線': {'北海道': 'URL', },
-    '千歳線': {'北海道': 'URL', },
-    '札沼線': {'北海道': 'URL', },
-    '留萌本線': {'北海道': 'URL', },
-    '富良野線': {'北海道': 'URL', },
-    '札幌市営地下鉄南北線': {'北海道': 'URL', },
-    '札幌市営地下鉄東西線': {'北海道': 'URL', },
-    '札幌市営地下鉄東豊線': {'北海道': 'URL', },
-    '一条線': {'北海道': 'URL', },
-    '山鼻線': {'北海道': 'URL', },
-    '山鼻西線': {'北海道': 'URL', },
-    '都心線': {'北海道': 'URL', },
-    '函館市電本線': {'北海道': 'URL', },
-    '宝来・谷地頭線': {'北海道': 'URL', },
-    '大森線': {'北海道': 'URL', },
-    '湯の川線': {'北海道': 'URL', },
-    'JR東日本総合': {'青森県': 'https://ensenchat.com/topic/jr%e6%9d%b1%e6%97%a5%e6%9c%ac%e7%b7%8f%e5%90%88%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89-part-1/', },
-    '弘南鉄道総合': {'青森県': 'URL', },
+    'JR北海道総合': {
+      '北海道':
+          'https://ensenchat.com/topic/jr%e5%8c%97%e6%b5%b7%e9%81%93%e7%b7%8f%e5%90%88%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89/',
+      '青森県':
+          'https://ensenchat.com/topic/jr%e5%8c%97%e6%b5%b7%e9%81%93%e7%b7%8f%e5%90%88%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89/'
+    },
+    '札幌市交通局総合': {
+      '北海道': 'URL',
+    },
+    '札幌市電総合': {
+      '北海道': 'URL',
+    },
+    '道南いさりび鉄道総合': {
+      '北海道': 'URL',
+    },
+    '函館市電総合': {
+      '北海道': 'URL',
+    },
+    '北海道新幹線': {
+      '北海道':
+          'https://ensenchat.com/topic/%e5%8c%97%e6%b5%b7%e9%81%93%e6%96%b0%e5%b9%b9%e7%b7%9a/',
+      '青森県':
+          'https://ensenchat.com/topic/%e5%8c%97%e6%b5%b7%e9%81%93%e6%96%b0%e5%b9%b9%e7%b7%9a/',
+    },
+    '海峡線': {
+      '北海道': 'https://ensenchat.com/topic/%e6%b5%b7%e5%b3%a1%e7%b7%9a/',
+      '青森県': 'https://ensenchat.com/topic/%e6%b5%b7%e5%b3%a1%e7%b7%9a/',
+    },
+    '函館本線': {
+      '北海道': 'URL',
+    },
+    '室蘭本線': {
+      '北海道': 'URL',
+    },
+    '根室本線': {
+      '北海道': 'URL',
+    },
+    '石勝線': {
+      '北海道': 'URL',
+    },
+    '石北本線': {
+      '北海道': 'URL',
+    },
+    '宗谷本線': {
+      '北海道': 'URL',
+    },
+    '釧網本線': {
+      '北海道': 'URL',
+    },
+    '千歳線': {
+      '北海道': 'URL',
+    },
+    '札沼線': {
+      '北海道': 'URL',
+    },
+    '留萌本線': {
+      '北海道': 'URL',
+    },
+    '富良野線': {
+      '北海道': 'URL',
+    },
+    '札幌市営地下鉄南北線': {
+      '北海道': 'URL',
+    },
+    '札幌市営地下鉄東西線': {
+      '北海道': 'URL',
+    },
+    '札幌市営地下鉄東豊線': {
+      '北海道': 'URL',
+    },
+    '一条線': {
+      '北海道': 'URL',
+    },
+    '山鼻線': {
+      '北海道': 'URL',
+    },
+    '山鼻西線': {
+      '北海道': 'URL',
+    },
+    '都心線': {
+      '北海道': 'URL',
+    },
+    '函館市電本線': {
+      '北海道': 'URL',
+    },
+    '宝来・谷地頭線': {
+      '北海道': 'URL',
+    },
+    '大森線': {
+      '北海道': 'URL',
+    },
+    '湯の川線': {
+      '北海道': 'URL',
+    },
+    'JR東日本総合': {
+      '青森県':
+          'https://ensenchat.com/topic/jr%e6%9d%b1%e6%97%a5%e6%9c%ac%e7%b7%8f%e5%90%88%e3%82%b9%e3%83%ac%e3%83%83%e3%83%89-part-1/',
+    },
+    '弘南鉄道総合': {
+      '青森県': 'URL',
+    },
     '津軽鉄道総合': {'青森県': 'URL'},
     '青い森鉄道総合': {'青森県': 'URL'},
     'IGRいわて銀河鉄道総合': {'青森県': 'URL'},
-    '東北新幹線': {'青森県': 'URL', },
-    '奥羽本線': {'青森県': 'https://ensenchat.com/topic/%e5%a5%a5%e7%be%bd%e6%9c%ac%e7%b7%9a/', '秋田県': 'https://ensenchat.com/topic/%e5%a5%a5%e7%be%bd%e6%9c%ac%e7%b7%9a/',},
-    '大湊線': {'青森県': 'https://ensenchat.com/topic/%e5%a4%a7%e6%b9%8a%e7%b7%9a/',},
-    '五能線': {'青森県': 'https://ensenchat.com/topic/%e4%ba%94%e8%83%bd%e7%b7%9a/', '秋田県': 'https://ensenchat.com/topic/%e4%ba%94%e8%83%bd%e7%b7%9a/', },
-    '八戸線': {'青森県': 'https://ensenchat.com/topic/%e5%85%ab%e6%88%b8%e7%b7%9a/','岩手県':'https://ensenchat.com/topic/%e5%85%ab%e6%88%b8%e7%b7%9a/' },
-    '津軽線': {'青森県': 'https://ensenchat.com/topic/%e6%b4%a5%e8%bb%bd%e7%b7%9a/', },
-    '弘南線': {'青森県': 'URL', },
-    '大鍔線': {'青森県': 'URL', },
+    '東北新幹線': {
+      '青森県': 'URL',
+    },
+    '奥羽本線': {
+      '青森県':
+          'https://ensenchat.com/topic/%e5%a5%a5%e7%be%bd%e6%9c%ac%e7%b7%9a/',
+      '秋田県':
+          'https://ensenchat.com/topic/%e5%a5%a5%e7%be%bd%e6%9c%ac%e7%b7%9a/',
+    },
+    '大湊線': {
+      '青森県': 'https://ensenchat.com/topic/%e5%a4%a7%e6%b9%8a%e7%b7%9a/',
+    },
+    '五能線': {
+      '青森県': 'https://ensenchat.com/topic/%e4%ba%94%e8%83%bd%e7%b7%9a/',
+      '秋田県': 'https://ensenchat.com/topic/%e4%ba%94%e8%83%bd%e7%b7%9a/',
+    },
+    '八戸線': {
+      '青森県': 'https://ensenchat.com/topic/%e5%85%ab%e6%88%b8%e7%b7%9a/',
+      '岩手県': 'https://ensenchat.com/topic/%e5%85%ab%e6%88%b8%e7%b7%9a/'
+    },
+    '津軽線': {
+      '青森県': 'https://ensenchat.com/topic/%e6%b4%a5%e8%bb%bd%e7%b7%9a/',
+    },
+    '弘南線': {
+      '青森県': 'URL',
+    },
+    '大鍔線': {
+      '青森県': 'URL',
+    },
 
     // 他の路線と都道府県に対するURLをここに追加
   }; // 路線ごとのURLリスト
@@ -399,7 +538,8 @@ class _HomeTabState extends State<HomeTab> {
   void _onRailwaySelected(String railway) {
     setState(() {
       _selectedRailway = railway;
-      if (_urlsByRailway.containsKey(railway) && _urlsByRailway[railway]!.containsKey(_selectedPrefecture)) {
+      if (_urlsByRailway.containsKey(railway) &&
+          _urlsByRailway[railway]!.containsKey(_selectedPrefecture)) {
         String url = _urlsByRailway[railway]![_selectedPrefecture]!;
         _launchWebView(url, railway);
       }
@@ -426,7 +566,6 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Column(
         children: [
           Container(
@@ -442,8 +581,12 @@ class _HomeTabState extends State<HomeTab> {
                     child: Text(
                       _regions[index],
                       style: TextStyle(
-                        color: _selectedRegion == _regions[index] ? Colors.blue : Colors.black,
-                        fontWeight: _selectedRegion == _regions[index] ? FontWeight.bold : FontWeight.normal,
+                        color: _selectedRegion == _regions[index]
+                            ? Colors.blue
+                            : Colors.black,
+                        fontWeight: _selectedRegion == _regions[index]
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ),
@@ -455,12 +598,14 @@ class _HomeTabState extends State<HomeTab> {
             child: ListView.builder(
               itemCount: _prefecturesByRegion[_selectedRegion]?.length ?? 0,
               itemBuilder: (BuildContext context, int index) {
-                String? prefecture = _prefecturesByRegion[_selectedRegion]?[index];
+                String? prefecture =
+                    _prefecturesByRegion[_selectedRegion]?[index];
                 if (prefecture != null) {
                   return ExpansionTile(
                     title: Text(prefecture),
                     children: _urlsByRailway.keys.map((railway) {
-                      if (_urlsByRailway[railway]?.containsKey(prefecture) ?? false) {
+                      if (_urlsByRailway[railway]?.containsKey(prefecture) ??
+                          false) {
                         return ListTile(
                           title: Text(railway),
                           onTap: () {
@@ -482,8 +627,6 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 }
-
-
 
 class ChieTab extends StatefulWidget {
   @override
@@ -544,12 +687,14 @@ class _SearchTabState extends State<SearchTab> {
       await _fetchLatestArticles(page: page);
     } else {
       final response = await http.get(
-        Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=$page&_embed&search=$query'),
+        Uri.parse(
+            'https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=$page&_embed&search=$query'),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final totalPages = int.parse(response.headers['x-wp-totalpages'] ?? '1');
+        final totalPages =
+            int.parse(response.headers['x-wp-totalpages'] ?? '1');
 
         setState(() {
           _searchResults = data;
@@ -568,7 +713,8 @@ class _SearchTabState extends State<SearchTab> {
 
   Future<void> _fetchLatestArticles({int page = 1}) async {
     final response = await http.get(
-      Uri.parse('https://ensenchat.com/wp-json/wp/v2/posts?per_page=20&page=$page&_embed'),
+      Uri.parse(
+          'https://ensenchat.com/wp-json/wp/v2/posts?per_page=20&page=$page&_embed'),
     );
 
     if (response.statusCode == 200) {
@@ -614,73 +760,77 @@ class _SearchTabState extends State<SearchTab> {
         ),
         _isLoading
             ? Center(
-          child: CircularProgressIndicator(),
-        )
+                child: CircularProgressIndicator(),
+              )
             : _searchResults.isEmpty
-            ? Center(child: Text('結果がありません'))
-            : Expanded(
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _searchResults.length,
-                  itemBuilder: (context, index) {
-                    var title = _searchResults[index]['title']['rendered'];
-                    var imageUrl = _searchResults[index]['_embedded']['wp:featuredmedia']?[0]['source_url'] ?? 'https://ensenchat.com/wp-content/uploads/2024/03/logomax6-scaled.jpg';
+                ? Center(child: Text('結果がありません'))
+                : Expanded(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: _searchResults.length,
+                            itemBuilder: (context, index) {
+                              var title =
+                                  _searchResults[index]['title']['rendered'];
+                              var imageUrl = _searchResults[index]['_embedded']
+                                      ['wp:featuredmedia']?[0]['source_url'] ??
+                                  'https://ensenchat.com/wp-content/uploads/2024/03/logomax6-scaled.jpg';
 
-
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ArticleDetail(
-                              articleUrl: _searchResults[index]['link'],
-                            ),
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ArticleDetail(
+                                        articleUrl: _searchResults[index]
+                                            ['link'],
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Card(
+                                  margin: EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      AspectRatio(
+                                        aspectRatio: 191 / 100,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(8.0),
+                                            topRight: Radius.circular(8.0),
+                                          ),
+                                          child: imageUrl != null
+                                              ? Image.network(
+                                                  imageUrl,
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : Container(),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          title,
+                                          style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                      child: Card(
-                        margin: EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AspectRatio(
-                              aspectRatio: 191 / 100,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(8.0),
-                                  topRight: Radius.circular(8.0),
-                                ),
-                                child: imageUrl != null
-                                    ? Image.network(
-                                  imageUrl,
-                                  fit: BoxFit.cover,
-                                )
-                                    : Container(),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                title,
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              _buildPaginationButtons(),
-            ],
-          ),
-        ),
+                        _buildPaginationButtons(),
+                      ],
+                    ),
+                  ),
       ],
     );
   }
@@ -692,14 +842,20 @@ class _SearchTabState extends State<SearchTab> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ElevatedButton(
-            onPressed: _currentPage > 1 ? () => _searchWordPress(_searchController.text, page: _currentPage - 1) : null,
+            onPressed: _currentPage > 1
+                ? () => _searchWordPress(_searchController.text,
+                    page: _currentPage - 1)
+                : null,
             child: Text('前へ'),
           ),
           SizedBox(width: 16.0),
           Text('$_currentPage / $_totalPages'),
           SizedBox(width: 16.0),
           ElevatedButton(
-            onPressed: _currentPage < _totalPages ? () => _searchWordPress(_searchController.text, page: _currentPage + 1) : null,
+            onPressed: _currentPage < _totalPages
+                ? () => _searchWordPress(_searchController.text,
+                    page: _currentPage + 1)
+                : null,
             child: Text('次へ'),
           ),
         ],
@@ -750,7 +906,6 @@ class SettingsTab extends StatelessWidget {
                     value: Text('${packageInfo!.version}'),
                     // onPressed: (BuildContext context) {},
                   ),
-
                   SettingsTile(
                     leading: Icon(Icons.assignment),
                     title: Text('ライセンス'),
@@ -835,18 +990,16 @@ class SettingsTab extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => WebViewPage(
-                            url: 'https://docs.google.com/forms/d/e/1FAIpQLScc7hW0snL4nCyuLI8mTd71m9y17Vtyxi8nEhWWO0rMiEgW2Q/viewform?embedded=true&pli=1',
+                            url:
+                                'https://docs.google.com/forms/d/e/1FAIpQLScc7hW0snL4nCyuLI8mTd71m9y17Vtyxi8nEhWWO0rMiEgW2Q/viewform?embedded=true&pli=1',
                             title: 'お問い合わせ',
                           ),
                         ),
                       );
                     },
                   ),
-
-
                 ],
               ),
-
               SettingsSection(
                 title: Text('編集者向け'),
                 tiles: [
@@ -877,8 +1030,6 @@ class SettingsTab extends StatelessWidget {
     );
   }
 }
-
-
 
 class WebViewPageCustom extends StatelessWidget {
   final String customUrl;
@@ -940,14 +1091,14 @@ class _WebViewPageWithBackState extends State<WebViewPageWithBack> {
   }
 }
 
-
 class ArticleList extends StatefulWidget {
   @override
   _ArticleListState createState() => _ArticleListState();
 }
 
 class _ArticleListState extends State<ArticleList> {
-  final String apiUrl = 'https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=1';
+  final String apiUrl =
+      'https://ensenchat.com/wp-json/wp/v2/posts?per_page=100&page=1';
   List<Map<String, dynamic>> articles = [];
 
   @override
@@ -991,7 +1142,8 @@ class _ArticleListState extends State<ArticleList> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ArticleDetail(articleUrl: article['url']),
+                    builder: (context) =>
+                        ArticleDetail(articleUrl: article['url']),
                   ),
                 );
               },
@@ -1022,6 +1174,7 @@ class ArticleDetail extends StatelessWidget {
     );
   }
 }
+
 class WebViewPage extends StatefulWidget {
   final String url;
   final String title;
